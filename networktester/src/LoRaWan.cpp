@@ -30,10 +30,6 @@
 
 #include "LoRaWan.h"
 
-HardwareSerial SerialLoRa(1);
-//HardwareSerial SerialLoRa(2);
-
-
 LoRaWanClass::LoRaWanClass(void)
 {
     memset(_buffer, 0, 256);
@@ -41,8 +37,8 @@ LoRaWanClass::LoRaWanClass(void)
 
 void LoRaWanClass::init(void)
 {
-    SerialLoRa.begin(9600, SERIAL_8N1, 2, 5);
-    //SerialLoRa.begin(9600, SERIAL_8N1, 16, 17);
+    //SerialLoRa.begin(9600, SERIAL_8N1, 2, 5);
+    SerialLoRa.begin(9600, SERIAL_8N1, 16, 17);
 }
 
 void LoRaWanClass::getVersion(char *buffer, short length, unsigned char timeout)
@@ -258,12 +254,12 @@ bool LoRaWanClass::transferPacket(char *buffer, unsigned char timeout)
 
 bool LoRaWanClass::transferPacket(unsigned char *buffer, int length, unsigned char timeout)
 {
-    char temp[3] = {0};   //char temp[3] = {0}; In C strings are 0-terminated, meaning that after the call to sprintf, _int_char contains { 'a', 'b', '\0' }. This is an array of 3 chars and you only reserver memory for 2
+    char temp[3] = {0};
     while(SerialLoRa.available())SerialLoRa.read();
     sendCommand("AT+MSGHEX=\"");
     for(int i = 0; i < length; i++)
-    {   
-        sprintf(temp,"%02x", buffer[i]);    //snprintf(temp, 2, "%02x", buffer[i]);
+    {       
+        sprintf(temp,"%02x", buffer[i]);
         SerialLoRa.write(temp); 
     }
     sendCommand("\"\r\n");
@@ -417,7 +413,7 @@ bool LoRaWanClass::transferProprietaryPacket(char *buffer, unsigned char timeout
 
 bool LoRaWanClass::transferProprietaryPacket(unsigned char *buffer, unsigned char length, unsigned char timeout)
 {
-    char temp[2] = {0};
+    char temp[3] = {0};
     
     while(SerialLoRa.available())SerialLoRa.read();
     
@@ -471,7 +467,7 @@ void LoRaWanClass::setConfirmedMessageRetryTime(unsigned char time)
     delay(DEFAULT_TIMEWAIT);    
 }
 
-void LoRaWanClass::setReceiceWindowFirst(bool command)
+void LoRaWanClass::setReceiveWindowFirst(bool command)
 {
     if(command)sendCommand("AT+RXWIN1=ON\r\n");
     else sendCommand("AT+RXWIN1=OFF\r\n");
@@ -481,7 +477,7 @@ void LoRaWanClass::setReceiceWindowFirst(bool command)
     delay(DEFAULT_TIMEWAIT);
 }
 
-void LoRaWanClass::setReceiceWindowFirst(unsigned char channel, float frequency)
+void LoRaWanClass::setReceiveWindowFirst(unsigned char channel, float frequency)
 {
     char cmd[32];
     
@@ -494,7 +490,7 @@ void LoRaWanClass::setReceiceWindowFirst(unsigned char channel, float frequency)
     delay(DEFAULT_TIMEWAIT);
 }
 
-void LoRaWanClass::setReceiceWindowSecond(float frequency, _data_rate_t dataRate)
+void LoRaWanClass::setReceiveWindowSecond(float frequency, _data_rate_t dataRate)
 {
     char cmd[32];
     
@@ -507,7 +503,7 @@ void LoRaWanClass::setReceiceWindowSecond(float frequency, _data_rate_t dataRate
     delay(DEFAULT_TIMEWAIT);
 }
 
-void LoRaWanClass::setReceiceWindowSecond(float frequency, _spreading_factor_t spreadingFactor, _band_width_t bandwidth)
+void LoRaWanClass::setReceiveWindowSecond(float frequency, _spreading_factor_t spreadingFactor, _band_width_t bandwidth)
 {
     char cmd[32];
     
@@ -540,7 +536,7 @@ void LoRaWanClass::setJoinDutyCycle(bool command)
     delay(DEFAULT_TIMEWAIT);
 }
 
-void LoRaWanClass::setReceiceWindowDelay(_window_delay_t command, unsigned short _delay)
+void LoRaWanClass::setReceiveWindowDelay(_window_delay_t command, unsigned short _delay)
 {
     char cmd[32];
     
@@ -566,7 +562,7 @@ void LoRaWanClass::setClassType(_class_type_t type)
     delay(DEFAULT_TIMEWAIT);
 }
 
-void LoRaWanClass::setDeciveMode(_device_mode_t mode)
+void LoRaWanClass::setDeviceMode(_device_mode_t mode)
 {
     if(mode == LWABP)sendCommand("AT+MODE=LWABP\r\n");
     else if(mode == LWOTAA)sendCommand("AT+MODE=LWOTAA\r\n");
@@ -662,7 +658,7 @@ bool LoRaWanClass::transferPacketP2PMode(char *buffer, unsigned char timeout)
 
 bool LoRaWanClass::transferPacketP2PMode(unsigned char *buffer, unsigned char length, unsigned char timeout)
 {
-    char temp[2] = {0};
+    char temp[3] = {0};
     
     sendCommand("AT+TEST=TXLRPKT,\"");
     for(int i = 0; i < length; i ++)
